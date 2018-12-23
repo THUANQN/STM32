@@ -1,0 +1,10 @@
+net.c:10:6:net_ini	8	static
+net.c:17:10:checksum	20	static
+net.c:31:9:arp_read	24	static
+net.c:163:6:eth_send	8	static
+net.c:59:6:arp_send	4	static
+net.c:122:9:ip_send	16	static
+net.c:70:9:icmp_read	16	static
+net.c:87:9:ip_read	8	static
+net.c:137:6:eth_read	64	static
+net.c:170:6:net_poll	8	static

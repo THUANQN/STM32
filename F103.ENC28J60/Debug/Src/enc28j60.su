@@ -1,0 +1,15 @@
+enc28j60.c:15:16:SPIx_WriteRead	32	static
+enc28j60.c:57:13:enc28j60_readBuf	16	static
+enc28j60.c:67:13:enc28j60_writeBuf	16	static
+enc28j60.c:25:6:SPI_SendByte	0	static
+enc28j60.c:30:9:SPI_ReceiveByte	0	static
+enc28j60.c:44:16:enc28j60_readOp.constprop	8	static
+enc28j60.c:36:6:enc28j60_writeOp	24	static
+enc28j60.c:76:13:enc28j60_SetBank	16	static
+enc28j60.c:92:16:enc28j60_readRegByte	8	static
+enc28j60.c:86:13:enc28j60_writeRegByte	16	static
+enc28j60.c:98:13:enc28j60_writeReg	16	static
+enc28j60.c:104:13:enc28j60_writePhy	8	static
+enc28j60.c:112:6:enc28j60_ini	8	static
+enc28j60.c:149:10:enc28j60_packetReceive	32	static
+enc28j60.c:177:6:enc28j60_packetSend	16	static
