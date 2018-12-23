@@ -1,0 +1,4 @@
+arp.c:21:9:arp_read	24	static
+arp.c:66:6:arp_send	4	static
+arp.c:77:9:arp_request	72	static
+arp.c:117:6:arp_table_fill	64	static
