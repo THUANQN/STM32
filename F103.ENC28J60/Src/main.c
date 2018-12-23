@@ -46,7 +46,7 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-// Declare some peripherals as spi, uart
+// Declare some peripherals as spi, uart 1
 SPI_HandleTypeDef hspi1;
 
 UART_HandleTypeDef huart1;
