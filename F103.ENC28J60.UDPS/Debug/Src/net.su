@@ -1,0 +1,12 @@
+net.c:13:6:net_ini	8	static
+net.c:23:10:checksum	20	static
+net.c:158:6:eth_send	8	static
+net.c:100:9:ip_send	16	static
+net.c:42:9:icmp_read	40	static
+net.c:65:9:ip_read	8	static
+net.c:115:6:eth_read	64	static
+net.c:182:6:net_poll	8	static
+net.c:229:6:ip_extract	40	static
+net.c:165:6:net_cmd	24	static
+net.c:206:6:UART1_RxCpltCallback	8	static
+net.c:251:6:TIM_PeriodElapsedCallback	0	static

@@ -1,0 +1,2 @@
+udp.c:36:9:udp_reply	16	static
+udp.c:12:9:udp_read	72	static
