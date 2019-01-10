@@ -18,6 +18,15 @@ uint8_t macnull[6]=MAC_NULL;
 arp_record_ptr arp_rec[5];
 uint8_t current_arp_index=0;
 //--------------------------------------------------
+/**
+ * @Description : Read ARP message from frame ethernet (Ethernet II)
+ * @Use         : Before use, recommend check Ethernet Type of frame ethernet is ARP protocol 0806
+ * @Input       : *frame pointer type @enc28j60_frame_ptr store
+ *                len    length of ARP messgae. Note : ARP message no data
+ * @Output      :res  1 If ARP message received have opcode is ARP Request and Destination IP Address is ipaddr (192.168.0.197)
+ *                    2 If ARP message received have opcode is ARP Reply and Destination IP Address is ipaddr (192.168.0.197)
+ *                    0 Else
+ */
 uint8_t arp_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
   uint8_t res=0;
@@ -63,6 +72,12 @@ uint8_t arp_read(enc28j60_frame_ptr *frame, uint16_t len)
 	return res;
 }
 //--------------------------------------------------
+/**
+ * @Description : Send ARP message to frame ethernet (Ethernet II) with opcode is ARP_REPLY
+ * @Use         : Before use, recommend check Ethernet Type of frame ethernet is ARP protocol 0806
+ * @Input       : *frame pointer type @enc28j60_frame_ptr store data you want to send
+ * @Output      : None
+ */
 void arp_send(enc28j60_frame_ptr *frame)
 {
   arp_msg_ptr *msg = (void*)frame->data;
@@ -74,6 +89,13 @@ void arp_send(enc28j60_frame_ptr *frame)
   eth_send(frame,sizeof(arp_msg_ptr));
 }
 //--------------------------------------------------
+/**
+ * @Description : Request ARP message to frame ethernet (Ethernet II) with opcode is ARP_REQUEST
+ * @Use         : Before use, recommend check Ethernet Type of frame ethernet is ARP protocol 0806
+ * @Input       : *ip_addr pointer store IP address you want to request from ENC28J60 module
+ * @Output      : 0 If this IP address exist in the arp table fill
+ *                1 If not, and send to request ARP message
+ */
 uint8_t arp_request(uint8_t *ip_addr)
 {
   uint8_t i;
@@ -114,6 +136,12 @@ uint8_t arp_request(uint8_t *ip_addr)
   return 1;
 }
 //--------------------------------------------------
+/**
+ * @Description : Collect IP and MAC Correspond when reveived ARP_REPLAY opcode from ARP message of other machine in network
+ * @Input       : *frame pointer type @enc28j60_frame_ptr store
+ * @Output      : None
+ * @Note        : arp table is only 5 elements.
+ */
 void arp_table_fill(enc28j60_frame_ptr *frame)
 {
   uint8_t i;

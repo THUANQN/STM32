@@ -62,7 +62,7 @@ uint8_t usart_cnt;
 uint8_t is_ip;
 } USART_prop_ptr;
 //--------------------------------------------------
-#define be16toword(a) ((((a)>>8)&0xff)|(((a)<<8)&0xff00))
+#define be16toword(a) ((((a)>>8)&0xff)|(((a)<<8)&0xff00)) // Convert to big endian
 #define ETH_ARP be16toword(0x0806)
 #define ETH_IP be16toword(0x0800)
 //--------------------------------------------------

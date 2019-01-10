@@ -20,6 +20,29 @@ void net_ini(void)
   enc28j60_ini();
 }
 //--------------------------------------------------
+// Reference: https://www.youtube.com/watch?v=dXartoyj2ow
+// EX : Calculate checksum IPv4 Packet
+//  |0 Version 3||4 IHL  7||8 DSCP 13||14 ECN 15||16        Total Length         31|
+//  |0             Identification             15||16 Flag 18||19 Fragment Offset 31|
+//  |0   Time to Live   7||8    Protocol      15||16      Header Checksum        31|
+//  |0                             Source IP Address                             31|
+//  |0                          Destination IP Address                           31|
+//  |0                             Option + Padding                              31|
+//  Value
+//  |0   0100  3||4 0101 7||8    00000000     15||16    00000000 00011100        31|  -->   01000101 00000000 + 00000000 00011100
+//  |0           00000000 00000001            15||16 000  18||19 00000 00000000  31|  --> + 00000000 00000001 + 00000000 00000000
+//  |0     00000100     7||8    00010001      15||16      Header Checksum        31|  --> + 00000100 00010001
+//  |0                               10.12.14.5                                  31|  --> + 00001010 00001100 + 00001110 00000101
+//  |0                                 12.6.7.9                                  31|  --> + 00001100 00000110 + 00000111 00001001
+//  |0                             Option + Padding                              31|
+// => SUM = 01110100 01001110 => Header Checksum = ~SUM = 100010111 10110001
+// sum of data by word, after ~sum is header checksum
+/**
+ * @Description : Checksum of array data 8 bit
+ * @Input       : *ptr array data 8 bit (Note: array data received is little endien)
+ *                len  length of array
+ * @Output      : checksum value
+ */
 uint16_t checksum(uint8_t *ptr, uint16_t len, uint8_t type)
 {
   uint32_t sum = 0;
@@ -36,9 +59,16 @@ uint16_t checksum(uint8_t *ptr, uint16_t len, uint8_t type)
   }
 	if(len) sum+=((uint32_t)*ptr)<<8;
 	while (sum>>16) sum=(uint16_t)sum+(sum>>16);
-	return ~be16toword((uint16_t)sum);
+	return ~be16toword((uint16_t)sum); // re-convert
 }
 //--------------------------------------------------
+/**
+ * @Description : Received ICMP packet from ethernet bus and REPLY if it have REQUEST
+ * @Use         : Before use, recommend check Protocol of IP packet is ICMP 1
+ * @Input       : *frame pointer type @enc28j60_frame_ptr store frame
+ *                len    length of Sum data is include leng of data[] + sizeof(icmp_pkt_ptr).
+ * @Output       : res
+ */
 uint8_t icmp_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
   uint8_t res=0;
@@ -63,6 +93,13 @@ uint8_t icmp_read(enc28j60_frame_ptr *frame, uint16_t len)
   return res;
 }
 //--------------------------------------------------
+/**
+ * @Description : Received IP packet from ethernet bus
+ * @Use         : Before use, recommend check Ethernet Type of frame ethernet is IP protocol 0800
+ * @Input       : *frame pointer type @enc28j60_frame_ptr store frame
+ *                len    length of Sum data is include leng of data[] + sizeof(ip_pkt_ptr).
+ * @Output       : res
+ */
 uint8_t ip_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
   uint8_t res=0;
@@ -98,6 +135,13 @@ uint8_t ip_read(enc28j60_frame_ptr *frame, uint16_t len)
   return res;
 }
 //--------------------------------------------------
+/**
+ * @Description : Send IP packet to frame ethernet
+ * @Use         : Before use, recommend check Ethernet Type of frame ethernet is IP protocol 0800
+ * @Input       : *frame pointer type @enc28j60_frame_ptr store data you want to send
+ *                len length of Sum data is include leng of data[] + sizeof(ip_pkt_ptr).
+ * @Output      : res
+ */
 uint8_t ip_send(enc28j60_frame_ptr *frame, uint16_t len)
 {
   uint8_t res=0;
@@ -113,9 +157,16 @@ uint8_t ip_send(enc28j60_frame_ptr *frame, uint16_t len)
   return res;
 }
 //--------------------------------------------------
+/**
+ * @Description : Received frame (type Ethernet II) from ethernet bus
+ * @Input       : *frame pointer type @enc28j60_frame_ptr store frame
+ *                len    length of Sum data is include leng of data[] + sizeof(enc28j60_frame_ptr).
+ * @Output       : None
+ */
 void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
 	uint8_t res=0;
+	// Check if data payload exist
 	if (len>=sizeof(enc28j60_frame_ptr))
   {
     if(frame->type==ETH_ARP)
@@ -161,6 +212,13 @@ void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
   }
 }
 //--------------------------------------------------
+/**
+ * @Description : Send frame (type Ethernet II) to ethernet bus
+ * @Input       : *frame pointer type @enc28j60_frame_ptr store frame you want to send
+ *                len    length of data payload (Sum is leng of data[] + sizeof(enc28j60_frame_ptr) because
+ *                       struct enc28j60_frame_ptr is not include uint8_t data[])
+ * @Output       : None
+ */
 void eth_send(enc28j60_frame_ptr *frame, uint16_t len)
 {
   //memcpy(frame->addr_dest,frame->addr_src,6); // Comment vi ko phai luc nao cung co dia chi nguon de tro thanh dia chi cua nguoi nhan
@@ -168,6 +226,11 @@ void eth_send(enc28j60_frame_ptr *frame, uint16_t len)
   enc28j60_packetSend((void*)frame,len + sizeof(enc28j60_frame_ptr));
 }
 //--------------------------------------------------
+/**
+ * @Description : Services arp request ip address get from usart
+ * @Input       : None
+ * @Output      : None
+ */
 void net_cmd(void)
 {
 	static uint8_t ip[4]={0};
@@ -264,7 +327,7 @@ void ip_extract(char* ip_str,uint8_t len, uint8_t* ipextr)
     ss1 = strchr(ip_str,ch1);
     offset = ss1-ip_str+1;
     strncpy(ss2,ip_str,offset);
-    ss2[offset]=0;
+    ss2[offset]=0; //NULL
     ipextr[i] = atoi(ss2);
     ip_str+=offset;
     len-=offset;
@@ -274,12 +337,12 @@ void ip_extract(char* ip_str,uint8_t len, uint8_t* ipextr)
   {
     offset=ss1-ip_str+1;
     strncpy(ss2,ip_str,offset);
-    ss2[offset]=0;
+    ss2[offset]=0; //NULL
     ipextr[3] = atoi(ss2);
     return;
   }
   strncpy(ss2,ip_str,len);
-  ss2[len]=0;
+  ss2[len]=0; //NULL
   ipextr[3] = atoi(ss2);
 }
 //-----------------------------------------------

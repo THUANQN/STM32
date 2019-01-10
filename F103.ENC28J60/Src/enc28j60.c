@@ -33,6 +33,13 @@ uint8_t SPI_ReceiveByte(void)
  return bt; //Tra lai du lieu
 }
 //--------------------------------------------------
+/**
+ * @Description : Manipulating register via opcode and address of register (Write control register, Bit Set and Clear...)
+ * @Input       : op      opcode .Ex : 010 Write control register, 100 Bit Field Set, 101 Bit Field Clear
+ *                addres  address of register, you want manipulate
+ *                data    data payload
+ * @Output       : None
+ */
 void enc28j60_writeOp(uint8_t op,uint8_t addres, uint8_t data)
 {
  SS_SELECT();
@@ -41,6 +48,12 @@ void enc28j60_writeOp(uint8_t op,uint8_t addres, uint8_t data)
  SS_DESELECT();
 }
 //--------------------------------------------------
+/**
+ * @Description : Manipulating register via opcode and address of register (Read control register, ...)
+ * @Input       : op      opcode .Ex : 000 Read control register
+ *                addres  address of register, you want manipulate
+ * @Output       : result data of register
+ */
 static uint8_t enc28j60_readOp(uint8_t op,uint8_t addres)
 {
  uint8_t result;
@@ -54,6 +67,12 @@ static uint8_t enc28j60_readOp(uint8_t op,uint8_t addres)
   return result;
 }
 //--------------------------------------------------
+/**
+ * @Description : Read Buffer Memory. ENC28J60_READ_BUF_MEM = 0 0 1 | 1 1 0 1 0
+ * @Input       : len    length of buffer
+ *                *data  array of data to store buffer
+ * @Output      : None
+ */
 static void enc28j60_readBuf(uint16_t len,uint8_t* data)
 {
  SS_SELECT();
@@ -64,6 +83,12 @@ static void enc28j60_readBuf(uint16_t len,uint8_t* data)
  SS_DESELECT();
 }
 //--------------------------------------------------
+/**
+ * @Description : Write Buffer Memory. ENC28J60_WRITE_BUF_MEM = 0 1 1 | 1 1 0 1 0
+ * @Input       : len    length of buffer
+ *                *data  array of data  buffer to write buffer
+ * @Output      : None
+ */
 static void enc28j60_writeBuf(uint16_t len,uint8_t* data)
 {
   SS_SELECT();
@@ -109,6 +134,11 @@ static void enc28j60_writePhy(uint8_t addres,uint16_t data)
   ;
 }
 //--------------------------------------------------
+/**
+ * @Description Init Enc28j60 Module
+ * @Input       None
+ * @Output      None
+ */
 void enc28j60_ini(void)
 {
  LD_OFF;
@@ -146,6 +176,12 @@ void enc28j60_ini(void)
  enc28j60_writeOp (ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN); // allow receiving packets
 }
 //--------------------------------------------------
+/**
+ * @Description Module Enc28j60 receive Packet via header (header get by read buffer process)
+ * @Input       *buf    to store packet, get by read buffer process after header
+ *              buflen  length packet, get via header
+ * @Output      len     length of received packet
+ */
 uint16_t enc28j60_packetReceive(uint8_t *buf,uint16_t buflen)
 {
  uint16_t len=0;
@@ -174,6 +210,12 @@ uint16_t enc28j60_packetReceive(uint8_t *buf,uint16_t buflen)
  return len;
 }
 //--------------------------------------------------
+/**
+ * @Description Module Enc28j60 send Packet to buffer
+ * @Input       *buf    to write buffer
+ *              buflen  length packet
+ * @Output      None
+ */
 void enc28j60_packetSend(uint8_t *buf,uint16_t buflen)
 {
   while(enc28j60_readOp(ENC28J60_READ_CTRL_REG,ECON1)&ECON1_TXRTS)
@@ -184,7 +226,7 @@ void enc28j60_packetSend(uint8_t *buf,uint16_t buflen)
       enc28j60_writeOp(ENC28J60_BIT_FIELD_CLR,ECON1,ECON1_TXRST);
     }
   }
-	enc28j60_writeReg(EWRPT,TXSTART_INIT);
+  enc28j60_writeReg(EWRPT,TXSTART_INIT);
   enc28j60_writeReg(ETXND,TXSTART_INIT+buflen);
   enc28j60_writeBuf(1,(uint8_t*)"x00");
   enc28j60_writeBuf(buflen,buf);

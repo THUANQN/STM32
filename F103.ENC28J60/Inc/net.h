@@ -52,7 +52,7 @@ typedef struct icmp_pkt{
   uint8_t data[];
 } icmp_pkt_ptr; // ICMP Packet format : https://www.frozentux.net/iptables-tutorial/chunkyhtml/x281.html
 //--------------------------------------------------
-#define be16toword(a) ((((a)>>8)&0xff)|(((a)<<8)&0xff00))
+#define be16toword(a) ((((a)>>8)&0xff)|(((a)<<8)&0xff00)) // Convert to big endian
 #define ETH_ARP be16toword(0x0806)
 #define ETH_IP be16toword(0x0800)
 //--------------------------------------------------

@@ -10,6 +10,13 @@ extern UART_HandleTypeDef huart1;
 extern char str1[60];
 extern uint8_t net_buf[ENC28J60_MAXFRAME];
 //--------------------------------------------------
+/**
+ * @Description : Read UDP packet to frame ethernet and Reply UDP Packet
+ * @Use         : Before use, recommend check Ethernet Type of frame ethernet is IP protocol 0800 and Protocol of IP Packet is UDP
+ * @Input       : *frame pointer type @enc28j60_frame_ptr store frame
+ *                len length data of ip_pkt_ptr structure
+ * @Output      : res
+ */
 uint8_t udp_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
   uint8_t res=0;
@@ -34,6 +41,13 @@ uint8_t udp_read(enc28j60_frame_ptr *frame, uint16_t len)
   return res;
 }
 //--------------------------------------------------
+/**
+ * @Description : Read UDP packet to frame ethernet and Reply UDP Packet
+ * @Use         : Before use, recommend check Ethernet Type of frame ethernet is IP protocol 0800 and Protocol of IP Packet is UDP
+ * @Input       : *frame pointer type @enc28j60_frame_ptr store frame
+ *                len length data of ip_pkt_ptr structure
+ * @Output      : res
+ */
 uint8_t udp_reply(enc28j60_frame_ptr *frame, uint16_t len)
 {
   uint8_t res=0;
